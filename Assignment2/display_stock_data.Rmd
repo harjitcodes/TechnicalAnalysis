@@ -1,0 +1,71 @@
+---
+title: "Technical Analysis: Preliminary Stage"
+author: "Harjit Gill"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 9, fig.height = 5.5)
+```
+
+## What this document does
+
+It reads the stock symbols in `portfolio.txt`, downloads their daily prices from Yahoo Finance, calculates the mean, median, mode, standard deviation and a 50-day moving average of the close price, and shows the data in tables and charts. The functions are stored in `stock_functions.R` and `stock_display.R`.
+
+## 1. Load packages and functions
+
+```{r packages}
+source("stock_functions.R")
+setup_packages()          # installs quantmod, TTR and ggplot2 when they are missing
+source("stock_display.R")
+```
+
+## 2. Symbols in the portfolio
+
+```{r symbols}
+get_symbols_from_file("portfolio.txt")
+```
+
+## 3. Import the data
+
+```{r import}
+stocks <- load_stock_data("portfolio.txt", from = "2024-01-01")
+sapply(stocks, nrow)     # number of trading days per stock
+```
+
+## 4. Display the data
+
+```{r display}
+show_all(stocks, rows = 5)
+```
+
+## 5. Statistics
+
+```{r stats}
+res <- calculate_all_statistics(stocks, window = 50)
+knitr::kable(res$summary, digits = 2, caption = "Close price statistics")
+```
+
+## 6. Charts
+
+```{r ma}
+chart_ma(res$detail, window = 50)
+```
+
+```{r returns}
+chart_returns(res$detail)
+```
+
+```{r spread}
+chart_spread(res$detail)
+```
+
+```{r variation}
+chart_stats(res$summary)
+```
+
+## Notes
+
+- Yahoo Finance data is downloaded with `quantmod::getSymbols()`, so internet access is required.
+- The mode is calculated on prices rounded to 2 decimals because exact repeats are uncommon.
