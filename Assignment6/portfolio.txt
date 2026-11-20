@@ -1,0 +1,5 @@
+AAPL
+MA
+XOM
+COST
+TSLA
